@@ -5,13 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>VTU Notes</title>
   <link rel="stylesheet" href="css/style.css" />
-
-  <!-- Firebase SDKs (Compat version for simplicity) -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 </head>
 <body>
-  <!-- Dark Mode Toggle -->
   <div class="dark-toggle">
     <label><input type="checkbox" id="darkToggle" />🌙 Dark Mode</label>
   </div>
@@ -21,26 +18,24 @@
     <p>Score more in exams with premium notes at 50% OFF – Limited Time!</p>
     <a href="offers.html" class="btn-primary">Explore Offers</a>
 
-    <!-- Auto Scrolling Subjects -->
-    <div class="scroll-wrapper">
-      <div class="scroll-track">
-        <span class="scroll-item">📘 Mathematics</span>
-        <span class="scroll-item">💻 OOP</span>
-        <span class="scroll-item">🗄️ DBMS</span>
-        <span class="scroll-item">🌐 CN</span>
-        <span class="scroll-item">📱 IoT</span>
-        <span class="scroll-item">📐 DAA</span>
-        <span class="scroll-item">📚 DMS</span>
-        <span class="scroll-item">🎨 UI/UX</span>
-        <span class="scroll-item">🛡️ Cyber Security</span>
-        <span class="scroll-item">🔐 Blockchain</span>
-      </div>
-    </div>
+    <!-- Category Filter -->
+    <select id="categoryFilter">
+      <option value="all">All Categories</option>
+      <option value="DBMS">DBMS</option>
+      <option value="OOP">OOP</option>
+      <option value="DMS">DMS</option>
+      <option value="CN">CN</option>
+      <option value="DAA">DAA</option>
+      <option value="IoT">IoT</option>
+      <option value="UI/UX">UI/UX</option>
+      <option value="Cyber Security">Cyber Security</option>
+      <option value="Blockchain">Blockchain</option>
+    </select>
 
-    <!-- Search Bar -->
+    <!-- Search -->
     <input type="text" placeholder="Search VTU Notes (e.g. DBMS, OOP, UI/UX)" class="search-bar" id="searchInput" />
 
-    <!-- Latest Notes -->
+    <!-- Notes Grid -->
     <section class="featured-section">
       <div class="grid" id="latestNotes"></div>
     </section>
@@ -51,13 +46,10 @@
     <button onclick="window.location.href='admin.html'" class="btn-primary">Admin</button>
   </footer>
 
-  <!-- Floating Elements -->
   <a href="cart.html" class="floating-cart">🛒 <span id="cartCount">0</span></a>
   <a href="https://wa.me/919876543210" target="_blank" class="floating-contact">💬 Contact Support</a>
 
-  <!-- Firebase Logic -->
   <script>
-    // 🔥 Your Firebase Config
     const firebaseConfig = {
       apiKey: "AIzaSyBFC8fpgt3SBWOszLm26aoNDTg6mqPfnE8",
       authDomain: "vtu-materials-55ff5.firebaseapp.com",
@@ -68,46 +60,52 @@
       appId: "1:810088584819:web:013b2a5a3b4a930300fc06"
     };
 
-    // 🚀 Initialize Firebase
     firebase.initializeApp(firebaseConfig);
     const dbRef = firebase.database().ref("products");
-
-    // 🧱 Load Products in Real-Time
     const latestNotes = document.getElementById("latestNotes");
-    dbRef.on('value', snapshot => {
+    const searchInput = document.getElementById("searchInput");
+    const categoryFilter = document.getElementById("categoryFilter");
+
+    function renderNotes(snapshot) {
       latestNotes.innerHTML = '';
-      if (snapshot.exists()) {
-        snapshot.forEach(child => {
-          const data = child.val();
-          const card = document.createElement("div");
-          card.className = "note-card";
-          card.innerHTML = `
-            <img src="${data.imageURL}" alt="Note Image" />
-            <h3>${data.title}</h3>
-            <p class="price">₹${data.price} <del>₹${data.originalPrice || (parseInt(data.price)+50)}</del></p>
-            <p class="desc">${data.description || ''}</p>
-            <button class="btn-primary">Add to Cart</button>
-          `;
-          latestNotes.appendChild(card);
-        });
-      } else {
-        latestNotes.innerHTML = `<p style="text-align:center">No products uploaded yet.</p>`;
-      }
+      snapshot.forEach(child => {
+        const data = child.val();
+        const card = document.createElement("div");
+        card.className = "note-card";
+        card.setAttribute("data-category", data.category.toLowerCase());
+        card.innerHTML = `
+          <img src="${data.imageURL}" alt="Note Image" />
+          <h3>${data.title}</h3>
+          <p class="price">₹${data.price} <del>₹${data.originalPrice}</del></p>
+          <p class="desc">${data.description || ''}</p>
+          <button class="btn-primary">Add to Cart</button>
+        `;
+        latestNotes.appendChild(card);
+      });
+    }
+
+    function filterNotes() {
+      const keyword = searchInput.value.toLowerCase();
+      const category = categoryFilter.value;
+      const cards = document.querySelectorAll(".note-card");
+
+      cards.forEach(card => {
+        const matchesSearch = card.textContent.toLowerCase().includes(keyword);
+        const matchesCategory = category === "all" || card.getAttribute("data-category") === category.toLowerCase();
+        card.style.display = matchesSearch && matchesCategory ? "block" : "none";
+      });
+    }
+
+    dbRef.on('value', snapshot => {
+      renderNotes(snapshot);
+      filterNotes();
     });
 
-    // 🌙 Dark mode toggle
+    searchInput.addEventListener("input", filterNotes);
+    categoryFilter.addEventListener("change", filterNotes);
+
     document.getElementById('darkToggle').addEventListener('change', function () {
       document.body.classList.toggle('dark-mode');
-    });
-
-    // 🔍 Live search
-    document.getElementById('searchInput').addEventListener('input', function () {
-      const keyword = this.value.toLowerCase();
-      const cards = document.querySelectorAll(".note-card");
-      cards.forEach(card => {
-        const content = card.textContent.toLowerCase();
-        card.style.display = content.includes(keyword) ? "block" : "none";
-      });
     });
   </script>
 </body>
