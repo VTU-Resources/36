@@ -1,4 +1,3 @@
-<!-- Updated Admin Panel HTML with Delete, Edit, and Category Filters -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,6 +10,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage-compat.js"></script>
 </head>
 <body>
+  <!-- Admin Login -->
   <div id="adminLoginWrapper" class="admin-section">
     <form id="adminLoginForm">
       <h2>🔐 Admin Login</h2>
@@ -20,10 +20,11 @@
     </form>
   </div>
 
+  <!-- Admin Panel -->
   <section id="adminPanelWrapper" class="admin-section" style="display: none;">
-    <h1>📋 Add / Update Product</h1>
+    <h1>📝 Add / Update Product</h1>
     <form id="noteForm">
-      <input type="hidden" id="noteId" />
+      <input type="hidden" id="editKey" />
       <input type="text" id="noteName" placeholder="Note Title" required />
       <input type="text" id="noteCategory" placeholder="Category (e.g., DBMS)" required />
       <input type="number" id="notePrice" placeholder="Price (₹)" required />
@@ -35,7 +36,8 @@
       <button type="submit">Save Note</button>
     </form>
 
-    <div id="adminNotesList"></div>
+    <h2>📦 Products</h2>
+    <div id="productList"></div>
   </section>
 
   <script>
@@ -53,108 +55,119 @@
     const db = firebase.database().ref("products");
     const storage = firebase.storage().ref("images");
 
+    // Admin login
     document.getElementById("adminLoginForm").addEventListener("submit", (e) => {
       e.preventDefault();
-      if (adminUser.value === "sc" && adminPass.value === "cs") {
-        adminLoginWrapper.style.display = "none";
-        adminPanelWrapper.style.display = "block";
-        loadNotes();
+      const user = document.getElementById("adminUser").value;
+      const pass = document.getElementById("adminPass").value;
+      if (user === "sc" && pass === "cs") {
+        document.getElementById("adminLoginWrapper").style.display = "none";
+        document.getElementById("adminPanelWrapper").style.display = "block";
+        fetchProducts();
       } else {
         alert("❌ Invalid Credentials");
       }
     });
 
-    noteImage.addEventListener("change", e => {
+    // Image preview
+    document.getElementById("noteImage").addEventListener("change", e => {
       const file = e.target.files[0];
       if (file) {
         const reader = new FileReader();
-        reader.onload = () => previewImg.src = reader.result;
+        reader.onload = () => {
+          document.getElementById("previewImg").src = reader.result;
+        };
         reader.readAsDataURL(file);
       }
     });
 
-    noteForm.addEventListener("submit", async (e) => {
+    // Add or Update Product
+    document.getElementById("noteForm").addEventListener("submit", async (e) => {
       e.preventDefault();
 
-      let imageURL = previewImg.src;
-      const file = noteImage.files[0];
-      if (file) {
-        const fileRef = storage.child(Date.now() + "_" + file.name);
-        const snapshot = await fileRef.put(file);
+      const title = document.getElementById("noteName").value;
+      const category = document.getElementById("noteCategory").value;
+      const price = document.getElementById("notePrice").value;
+      const originalPrice = document.getElementById("noteDiscount").value || price;
+      const description = document.getElementById("noteDesc").value;
+      const tags = document.getElementById("noteTags").value;
+      const image = document.getElementById("noteImage").files[0];
+      const editKey = document.getElementById("editKey").value;
+
+      let imageURL = document.getElementById("previewImg").src;
+
+      if (image) {
+        const fileRef = storage.child(Date.now() + "_" + image.name);
+        const snapshot = await fileRef.put(image);
         imageURL = await snapshot.ref.getDownloadURL();
       }
 
-      const product = {
-        title: noteName.value,
-        category: noteCategory.value,
-        price: notePrice.value,
-        originalPrice: noteDiscount.value || notePrice.value,
-        description: noteDesc.value,
-        tags: noteTags.value,
-        imageURL
-      };
+      const productData = { title, category, price, originalPrice, description, tags, imageURL };
 
-      const id = noteId.value;
-      if (id) {
-        db.child(id).update(product).then(() => {
+      if (editKey) {
+        db.child(editKey).update(productData).then(() => {
           alert("✅ Product updated!");
-          noteForm.reset();
-          previewImg.src = "1.jpeg";
-          noteId.value = "";
-          loadNotes();
+          document.getElementById("noteForm").reset();
+          document.getElementById("previewImg").src = "1.jpeg";
+          document.getElementById("editKey").value = "";
+          fetchProducts();
         });
       } else {
-        db.push(product).then(() => {
+        db.push(productData).then(() => {
           alert("✅ Product added!");
-          noteForm.reset();
-          previewImg.src = "1.jpeg";
-          loadNotes();
+          document.getElementById("noteForm").reset();
+          document.getElementById("previewImg").src = "1.jpeg";
+          fetchProducts();
         });
       }
     });
 
-    function loadNotes() {
-      db.once("value", snap => {
-        adminNotesList.innerHTML = "";
-        snap.forEach(child => {
+    // Fetch & display products
+    function fetchProducts() {
+      db.once("value", snapshot => {
+        const container = document.getElementById("productList");
+        container.innerHTML = "";
+        snapshot.forEach(child => {
           const data = child.val();
-          const id = child.key;
+          const key = child.key;
           const div = document.createElement("div");
-          div.className = "admin-note-card";
+          div.className = "note-card";
           div.innerHTML = `
-            <img src="${data.imageURL}" />
-            <div>
-              <h3>${data.title}</h3>
-              <p>Category: ${data.category}</p>
-              <p>Price: ₹${data.price} | <del>₹${data.originalPrice}</del></p>
-              <button onclick="editNote('${id}', ${JSON.stringify(data).replace(/"/g, '&quot;')})">✏️ Edit</button>
-              <button onclick="deleteNote('${id}')">🗑️ Delete</button>
-            </div>
+            <img src="${data.imageURL}" style="width:100%; max-height:130px; object-fit:cover; border-radius:6px;" />
+            <h3>${data.title}</h3>
+            <p class="price">₹${data.price} <del>₹${data.originalPrice}</del></p>
+            <p>${data.description || ''}</p>
+            <small>${data.tags}</small><br>
+            <button onclick="editNote('${key}')">✏️ Edit</button>
+            <button onclick="deleteNote('${key}')">🗑️ Delete</button>
           `;
-          adminNotesList.appendChild(div);
+          container.appendChild(div);
         });
       });
     }
 
-    function deleteNote(id) {
-      if (confirm("Are you sure to delete this note?")) {
-        db.child(id).remove().then(() => {
-          alert("🗑️ Deleted successfully");
-          loadNotes();
+    window.editNote = (key) => {
+      db.child(key).once("value", snapshot => {
+        const data = snapshot.val();
+        document.getElementById("editKey").value = key;
+        document.getElementById("noteName").value = data.title;
+        document.getElementById("noteCategory").value = data.category;
+        document.getElementById("notePrice").value = data.price;
+        document.getElementById("noteDiscount").value = data.originalPrice;
+        document.getElementById("noteDesc").value = data.description;
+        document.getElementById("noteTags").value = data.tags;
+        document.getElementById("previewImg").src = data.imageURL;
+      });
+    };
+
+    window.deleteNote = (key) => {
+      if (confirm("Are you sure you want to delete this product?")) {
+        db.child(key).remove().then(() => {
+          alert("✅ Product deleted!");
+          fetchProducts();
         });
       }
-    }
-
-    function editNote(id, data) {
-      noteId.value = id;
-      noteName.value = data.title;
-      noteCategory.value = data.category;
-      notePrice.value = data.price;
-      noteDiscount.value = data.originalPrice;
-      noteDesc.value = data.description;
-      noteTags.value = data.tags;
-      previewImg.src = data.imageURL;
-    }
+    };
   </script>
 </body>
 </html>
