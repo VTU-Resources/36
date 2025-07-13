@@ -1,0 +1,160 @@
+<!-- Updated Admin Panel HTML with Delete, Edit, and Category Filters -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Panel – VTU Notes Store</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage-compat.js"></script>
+</head>
+<body>
+  <div id="adminLoginWrapper" class="admin-section">
+    <form id="adminLoginForm">
+      <h2>🔐 Admin Login</h2>
+      <input type="text" id="adminUser" placeholder="Username" required />
+      <input type="password" id="adminPass" placeholder="Password" required />
+      <button type="submit">Login</button>
+    </form>
+  </div>
+
+  <section id="adminPanelWrapper" class="admin-section" style="display: none;">
+    <h1>📋 Add / Update Product</h1>
+    <form id="noteForm">
+      <input type="hidden" id="noteId" />
+      <input type="text" id="noteName" placeholder="Note Title" required />
+      <input type="text" id="noteCategory" placeholder="Category (e.g., DBMS)" required />
+      <input type="number" id="notePrice" placeholder="Price (₹)" required />
+      <input type="number" id="noteDiscount" placeholder="Discount (₹)" />
+      <textarea id="noteDesc" placeholder="Description"></textarea>
+      <input type="text" id="noteTags" placeholder="Tags (HOT,50OFF,Combo)" />
+      <input type="file" id="noteImage" accept="image/*" />
+      <img id="previewImg" src="1.jpeg" alt="Preview" />
+      <button type="submit">Save Note</button>
+    </form>
+
+    <div id="adminNotesList"></div>
+  </section>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBFC8fpgt3SBWOszLm26aoNDTg6mqPfnE8",
+      authDomain: "vtu-materials-55ff5.firebaseapp.com",
+      databaseURL: "https://vtu-materials-55ff5-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "vtu-materials-55ff5",
+      storageBucket: "vtu-materials-55ff5.appspot.com",
+      messagingSenderId: "810088584819",
+      appId: "1:810088584819:web:013b2a5a3b4a930300fc06"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database().ref("products");
+    const storage = firebase.storage().ref("images");
+
+    document.getElementById("adminLoginForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      if (adminUser.value === "sc" && adminPass.value === "cs") {
+        adminLoginWrapper.style.display = "none";
+        adminPanelWrapper.style.display = "block";
+        loadNotes();
+      } else {
+        alert("❌ Invalid Credentials");
+      }
+    });
+
+    noteImage.addEventListener("change", e => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = () => previewImg.src = reader.result;
+        reader.readAsDataURL(file);
+      }
+    });
+
+    noteForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      let imageURL = previewImg.src;
+      const file = noteImage.files[0];
+      if (file) {
+        const fileRef = storage.child(Date.now() + "_" + file.name);
+        const snapshot = await fileRef.put(file);
+        imageURL = await snapshot.ref.getDownloadURL();
+      }
+
+      const product = {
+        title: noteName.value,
+        category: noteCategory.value,
+        price: notePrice.value,
+        originalPrice: noteDiscount.value || notePrice.value,
+        description: noteDesc.value,
+        tags: noteTags.value,
+        imageURL
+      };
+
+      const id = noteId.value;
+      if (id) {
+        db.child(id).update(product).then(() => {
+          alert("✅ Product updated!");
+          noteForm.reset();
+          previewImg.src = "1.jpeg";
+          noteId.value = "";
+          loadNotes();
+        });
+      } else {
+        db.push(product).then(() => {
+          alert("✅ Product added!");
+          noteForm.reset();
+          previewImg.src = "1.jpeg";
+          loadNotes();
+        });
+      }
+    });
+
+    function loadNotes() {
+      db.once("value", snap => {
+        adminNotesList.innerHTML = "";
+        snap.forEach(child => {
+          const data = child.val();
+          const id = child.key;
+          const div = document.createElement("div");
+          div.className = "admin-note-card";
+          div.innerHTML = `
+            <img src="${data.imageURL}" />
+            <div>
+              <h3>${data.title}</h3>
+              <p>Category: ${data.category}</p>
+              <p>Price: ₹${data.price} | <del>₹${data.originalPrice}</del></p>
+              <button onclick="editNote('${id}', ${JSON.stringify(data).replace(/"/g, '&quot;')})">✏️ Edit</button>
+              <button onclick="deleteNote('${id}')">🗑️ Delete</button>
+            </div>
+          `;
+          adminNotesList.appendChild(div);
+        });
+      });
+    }
+
+    function deleteNote(id) {
+      if (confirm("Are you sure to delete this note?")) {
+        db.child(id).remove().then(() => {
+          alert("🗑️ Deleted successfully");
+          loadNotes();
+        });
+      }
+    }
+
+    function editNote(id, data) {
+      noteId.value = id;
+      noteName.value = data.title;
+      noteCategory.value = data.category;
+      notePrice.value = data.price;
+      noteDiscount.value = data.originalPrice;
+      noteDesc.value = data.description;
+      noteTags.value = data.tags;
+      previewImg.src = data.imageURL;
+    }
+  </script>
+</body>
+</html>

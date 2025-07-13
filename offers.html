@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Offers – VTU Notes Store</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <section class="offers-section">
+    <h1>🔥 Current Offers & Deals</h1>
+    <ul class="offers-list">
+      <li>🎁 <strong>Combo Deal:</strong> Get 3 Subject Notes for ₹249 only!</li>
+      <li>💸 <strong>50% OFF:</strong> On all Microcontroller and DBMS Notes – Limited time!</li>
+      <li>🚀 <strong>Exam Booster:</strong> Free Bonus Material with every Cart above ₹499</li>
+      <li>🕐 <strong>Flash Sale:</strong> Ends in <span id="offer-timer">00:00:00</span></li>
+    </ul>
+    <a href="index.html" class="btn-primary">Browse Notes</a>
+  </section>
+
+  <script>
+    // Simple 1-hour timer simulation
+    const endTime = new Date().getTime() + (60 * 60 * 1000);
+    const timerEl = document.getElementById('offer-timer');
+
+    function updateTimer() {
+      const now = new Date().getTime();
+      const diff = endTime - now;
+
+      if (diff <= 0) {
+        timerEl.innerText = '00:00:00';
+        return;
+      }
+
+      const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
+      const m = Math.floor((diff / (1000 * 60)) % 60);
+      const s = Math.floor((diff / 1000) % 60);
+      timerEl.innerText = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    }
+
+    setInterval(updateTimer, 1000);
+  </script>
+</body>
+</html>

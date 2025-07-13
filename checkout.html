@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Checkout – VTU Notes Store</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <section class="checkout-section">
+    <h1>Checkout</h1>
+    <p>This is a simulated checkout process. Click the button below to complete your order.</p>
+    <button onclick="checkoutNow()" class="btn-primary">Place Order</button>
+    <div id="confirmation" class="checkout-confirmation"></div>
+  </section>
+
+  <a href="index.html" class="back-link">← Back to Home</a>
+
+  <script>
+    function checkoutNow() {
+      const cart = JSON.parse(localStorage.getItem('cart')) || [];
+      if (cart.length === 0) {
+        document.getElementById('confirmation').innerHTML = '<p>Your cart is already empty.</p>';
+        return;
+      }
+      localStorage.removeItem('cart');
+      document.getElementById('confirmation').innerHTML = `
+        <p>✅ Order placed successfully! Thank you for purchasing VTU Premium Notes.</p>
+        <p>Your notes will be emailed within 60 minutes.</p>
+      `;
+    }
+  </script>
+</body>
+</html>

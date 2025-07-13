@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Note Details – VTU Notes Store</title>
+  <link rel="stylesheet" href="css/style.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&family=Poppins&display=swap" rel="stylesheet"/>
+</head>
+<body>
+
+  <!-- 📄 Product Detail Section -->
+  <section class="product-detail" id="product-section">
+    <!-- Content injected by JS -->
+  </section>
+
+  <!-- 👣 Footer -->
+  <footer class="main-footer">
+    <p>&copy; 2025 VTU Notes Store</p>
+    <a href="index.html">← Back to Home</a>
+  </footer>
+
+  <!-- 🛒 Floating Cart Badge -->
+  <a href="cart.html" class="floating-cart">
+    🛒 <span id="cart-count">0</span>
+  </a>
+
+  <script>
+    // Get product ID from URL
+    const params = new URLSearchParams(window.location.search);
+    const productId = params.get('id');
+    const productContainer = document.getElementById('product-section');
+    const notes = JSON.parse(localStorage.getItem('notes')) || [];
+
+    const note = notes.find(n => n.id === productId);
+
+    function renderProduct() {
+      if (!note) {
+        productContainer.innerHTML = `<p style="text-align:center;">Note not found.</p>`;
+        return;
+      }
+
+      let tagsHTML = '';
+      if (note.tags?.includes("HOT")) tagsHTML += '<span class="tag hot">🔥 HOT</span>';
+      if (note.tags?.includes("50OFF")) tagsHTML += '<span class="tag discount">50% OFF</span>';
+      if (note.tags?.includes("Combo")) tagsHTML += '<span class="tag combo">Combo Deal</span>';
+
+      productContainer.innerHTML = `
+        <div class="product-card-full">
+          <img src="${note.image || 'images/default-thumbnail.jpg'}" alt="${note.name}" class="product-image">
+          <div class="product-info">
+            <h1>${note.name}</h1>
+            <p class="product-category">Category: ${note.category}</p>
+            <div class="tags">${tagsHTML}</div>
+            <p class="product-description">${note.description || 'No description available.'}</p>
+            <div class="price-section">
+              <strong>Price: ₹${note.price - (note.discount || 0)}</strong>
+              ${note.discount ? `<span class="old-price">₹${note.price}</span>` : ''}
+            </div>
+            <button class="btn-primary add-to-cart" data-id="${note.id}">Add to Cart</button>
+          </div>
+        </div>
+      `;
+    }
+
+    renderProduct();
+
+    // Cart Badge Logic
+    function updateCartBadge() {
+      const cart = JSON.parse(localStorage.getItem('cart')) || [];
+      document.getElementById('cart-count').innerText = cart.length;
+    }
+
+    updateCartBadge();
+
+    // Add to cart
+    document.addEventListener('click', function(e) {
+      if (e.target.classList.contains('add-to-cart')) {
+        const noteId = e.target.dataset.id;
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        if (!cart.includes(noteId)) cart.push(noteId);
+        localStorage.setItem('cart', JSON.stringify(cart));
+        updateCartBadge();
+        alert("Note added to cart!");
+      }
+    });
+  </script>
+
+</body>
+</html>

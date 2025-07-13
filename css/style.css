@@ -1,0 +1,360 @@
+/* style.css – Full Responsive Design for VTU Notes Store */
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
+body {
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+  padding: 0;
+  background: #f7f8fc;
+  color: #111;
+}
+
+h1, h2, h3 {
+  margin-bottom: 0.5rem;
+}
+
+a {
+  color: #1a73e8;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+.btn-primary,
+button {
+  background: #0056d2;
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  margin-top: 10px;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background 0.3s ease;
+}
+
+.btn-primary:hover,
+button:hover {
+  background: #0040aa;
+}
+
+section {
+  padding: 2rem;
+}
+
+.container {
+  max-width: 1140px;
+  margin: auto;
+  padding: 0 1rem;
+}
+
+.featured-section,
+.cart-section,
+.checkout-section,
+.admin-panel,
+.about-section,
+.contact-section,
+.offers-section {
+  max-width: 900px;
+  margin: auto;
+  background: #fff;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  margin-top: 2rem;
+}
+
+.cart-item,
+.admin-note-card {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+  gap: 1rem;
+  border: 1px solid #eee;
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.cart-thumb,
+.admin-note-card img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+}
+
+.cart-details {
+  flex: 1;
+}
+
+.cart-price {
+  font-weight: bold;
+  color: #222;
+}
+
+.tag {
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  margin-right: 6px;
+  font-weight: 600;
+  display: inline-block;
+}
+
+.tag.hot {
+  background: red;
+  color: white;
+}
+
+.tag.discount {
+  background: #ff9800;
+  color: #fff;
+}
+
+.tag.combo {
+  background: #3f51b5;
+  color: #fff;
+}
+
+input,
+textarea,
+select {
+  width: 100%;
+  padding: 10px;
+  margin-top: 8px;
+  margin-bottom: 16px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 15px;
+}
+
+form img {
+  margin-top: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  max-width: 120px;
+}
+
+.floating-cart {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: royalblue;
+  color: white;
+  padding: 12px 16px;
+  border-radius: 50px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  font-weight: bold;
+  z-index: 1000;
+}
+
+.floating-contact {
+  position: fixed;
+  bottom: 90px;
+  right: 20px;
+  background: #25d366;
+  color: white;
+  padding: 12px 16px;
+  border-radius: 50px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  font-weight: bold;
+  text-decoration: none;
+  font-size: 14px;
+  z-index: 1000;
+}
+
+footer {
+  text-align: center;
+  padding: 1rem;
+  font-size: 14px;
+  color: #777;
+}
+
+.back-link {
+  display: inline-block;
+  margin-top: 1rem;
+  color: #333;
+  font-size: 15px;
+}
+
+/* Responsive Grid Layout */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1rem;
+}
+
+.note-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: #fff;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  transition: transform 0.2s ease;
+}
+
+.note-card:hover {
+  transform: translateY(-4px);
+}
+
+.note-card img {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.note-card h3 {
+  font-size: 1rem;
+  margin: 0.6rem 0 0.3rem;
+  font-weight: 600;
+}
+
+.note-card .category {
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 6px;
+}
+
+.note-card .price {
+  font-weight: bold;
+  font-size: 15px;
+  color: green;
+}
+
+.note-card .old-price {
+  text-decoration: line-through;
+  font-size: 13px;
+  color: #999;
+  margin-left: 6px;
+}
+
+.note-card button {
+  margin-top: 8px;
+  width: 100%;
+  font-size: 14px;
+  padding: 8px 0;
+}
+
+/* Admin Login Box */
+.admin-section {
+  max-width: 420px;
+  margin: auto;
+  background: #fff;
+  padding: 2rem;
+  margin-top: 3rem;
+  box-shadow: 0 0 10px rgba(0,0,0,0.05);
+  border-radius: 12px;
+}
+
+.admin-section h2 {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+/* Scroll Subjects Animation */
+.scroll-wrapper {
+  overflow: hidden;
+  margin: 1rem 0;
+  background: #e3f2fd;
+  border: 1px solid #90caf9;
+  padding: 8px 0;
+  border-radius: 8px;
+}
+
+.scroll-track {
+  display: inline-block;
+  white-space: nowrap;
+  animation: scroll-left 25s linear infinite;
+  font-weight: 600;
+  font-size: 15px;
+  color: #333;
+}
+
+.scroll-item {
+  display: inline-block;
+  margin-right: 2rem;
+}
+
+@keyframes scroll-left {
+  from { transform: translateX(100%); }
+  to { transform: translateX(-100%); }
+}
+
+/* Dark Mode */
+.dark-mode {
+  background: #121212;
+  color: #f1f1f1;
+}
+
+.dark-mode .featured-section,
+.dark-mode .scroll-wrapper,
+.dark-mode .admin-panel {
+  background: #1e1e1e;
+  border: 1px solid #333;
+}
+
+.dark-mode input,
+.dark-mode textarea,
+.dark-mode select {
+  background: #2a2a2a;
+  color: #fff;
+  border: 1px solid #555;
+}
+
+.dark-mode .note-card {
+  background: #2e2e2e;
+}
+
+.dark-mode .btn-primary {
+  background: #007bff;
+  color: white;
+}
+
+.dark-toggle {
+  position: fixed;
+  top: 15px;
+  right: 15px;
+  background: #f0f0f0;
+  padding: 8px 14px;
+  border-radius: 20px;
+  font-size: 14px;
+  z-index: 999;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.dark-mode .dark-toggle {
+  background: #333;
+  color: white;
+}
+
+/* Mobile First Responsive */
+@media (max-width: 768px) {
+  section {
+    padding: 1rem;
+  }
+
+  .cart-item,
+  .admin-note-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .note-card img {
+    height: 120px;
+  }
+
+  .btn-primary,
+  button {
+    width: 100%;
+  }
+
+  .admin-section {
+    padding: 1.5rem;
+  }
+}
